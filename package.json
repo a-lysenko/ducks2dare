@@ -1,0 +1,14 @@
+{
+  "name": "ducks2dare",
+  "version": "1.0.0",
+  "description": "## Overview The ducks2dare project is a web application that utilizes Bootstrap for responsive design and interactive features. This project serves as a demonstration of how to integrate Bootstrap into a simple HTML application.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
