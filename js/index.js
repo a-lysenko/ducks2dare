@@ -3,59 +3,50 @@ const months = [
   'july', 'august', 'september', 'october', 'november', 'december'
 ];
 
-function getMonthlyData() {
-  const data = {
-    income: [],
-    expenses: []
-  };
+const getMonthlyData = () => {
+  return months.reduce((data, month) => {
+    const income = parseFloat(document.getElementById(`${month}-income`).value) || 0;
+    const expenses = parseFloat(document.getElementById(`${month}-expenses`).value) || 0;
 
-  months.forEach(month => {
-    const income = document.getElementById(`${month}-income`).value;
-    const expenses = document.getElementById(`${month}-expenses`).value;
+    data.income.push(income);
+    data.expenses.push(expenses);
 
-    data.income.push(parseFloat(income) || 0);
-    data.expenses.push(parseFloat(expenses) || 0);
-  });
+    return data;
+  }, { income: [], expenses: [] });
+};
 
-  return data;
-}
-
-function onLoad() {
-
-  document.getElementById('username').addEventListener('input', function () {
-    const username = this.value;
+const onLoad = () => {
+  const usernameInput = document.getElementById('username');
+  usernameInput.addEventListener('input', ({ target }) => {
+    const { value: username } = target;
     const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
     const isValid = regex.test(username);
-    this.style.borderColor = isValid ? 'green' : 'red';
+    target.style.borderColor = isValid ? 'green' : 'red';
 
     localStorage.setItem('username', username);
-
   });
 
   const ctx = document.getElementById('myChart').getContext('2d');
-  var myChart = new Chart(ctx, {
+  const myChart = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: [
-        'January', 'February',
-        'March', 'April', 'May',
-        'June', 'July', 'August',
-        'September', 'October', 'November',
-        'December'
-      ],
-      datasets: [{
-        label: 'Income',
-        data: [],
-        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-        borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 1
-      }, {
-        label: 'Expenses',
-        data: [],
-        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-        borderColor: 'rgba(255, 99, 132, 1)',
-        borderWidth: 1
-      }]
+      labels: months.map(month => month.charAt(0).toUpperCase() + month.slice(1)),
+      datasets: [
+        {
+          label: 'Income',
+          data: [],
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 1
+        },
+        {
+          label: 'Expenses',
+          data: [],
+          backgroundColor: 'rgba(255, 99, 132, 0.2)',
+          borderColor: 'rgba(255, 99, 132, 1)',
+          borderWidth: 1
+        }
+      ]
     },
     options: {
       scales: {
@@ -66,30 +57,25 @@ function onLoad() {
     }
   });
 
-  document.getElementById('chart-tab').addEventListener('click', function () {
+  document.getElementById('chart-tab').addEventListener('click', () => {
     const monthlyData = getMonthlyData();
     myChart.data.datasets[0].data = monthlyData.income;
     myChart.data.datasets[1].data = monthlyData.expenses;
     myChart.update();
   });
 
-  // Download canvas as an image
-  document.getElementById('download').addEventListener('click', function () {
-    var link = document.createElement('a');
+  document.getElementById('download').addEventListener('click', () => {
+    const link = document.createElement('a');
     link.href = document.getElementById('myChart').toDataURL('image/png');
     link.download = 'chart.png';
     link.click();
   });
 
-  function getStorageData(key) {
-    const dataRaw = localStorage.getItem(key) ?? null;
-    return JSON.parse(dataRaw) || {};
-  };
+  const getStorageData = key => JSON.parse(localStorage.getItem(key) ?? '{}');
 
-  function setStorageData(key, month, value) {
+  const setStorageData = (key, month, value) => {
     const data = getStorageData(key);
-    const updatedData = { ...data, ...{ [month]: value } };
-    localStorage.setItem(key, JSON.stringify(updatedData));
+    localStorage.setItem(key, JSON.stringify({ ...data, [month]: value }));
   };
 
   const dataIncomeKey = 'dataIncome';
@@ -101,6 +87,7 @@ function onLoad() {
   months.forEach(month => {
     const monthIncomeElement = document.getElementById(`${month}-income`);
     const monthExpensesElement = document.getElementById(`${month}-expenses`);
+
     if (incomeStoredData[month]) {
       monthIncomeElement.value = incomeStoredData[month];
     }
@@ -108,15 +95,14 @@ function onLoad() {
       monthExpensesElement.value = expensesStoredData[month];
     }
 
-    monthIncomeElement.addEventListener('change', function () {
-      setStorageData(dataIncomeKey, month, this.value);
+    monthIncomeElement.addEventListener('change', ({ target }) => {
+      setStorageData(dataIncomeKey, month, target.value);
     });
 
-    monthExpensesElement.addEventListener('change', function () {
-      setStorageData(dataExpensesKey, month, this.value);
+    monthExpensesElement.addEventListener('change', ({ target }) => {
+      setStorageData(dataExpensesKey, month, target.value);
     });
   });
-
-}
+};
 
 window.onload = onLoad;
