@@ -71,6 +71,47 @@ const onLoad = () => {
     link.click();
   });
 
+  document.getElementById('send-email').addEventListener('click', async () => {
+    // Convert the chart to a Base64 image
+    const chartCanvas = document.getElementById('myChart');
+    const chartImage = chartCanvas.toDataURL('image/png');
+
+    // get email address from input with 'email-address' id
+    const emailAddress = document.getElementById('email-address').value;
+    if (!emailAddress) {
+      alert('Please enter a valid email address.');
+      return;
+    }
+  
+    // Email data
+    const emailData = {
+      to: emailAddress, // Replace with the recipient's email
+      subject: 'Your Chart from Ducks 2 Dare',
+      body: 'Please find your chart attached.',
+      chartImage: chartImage,
+    };
+  
+    try {
+      // Send the email data to the backend server
+      const response = await fetch('http://localhost:3000/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(emailData),
+      });
+  
+      if (response.ok) {
+        alert('Email sent successfully!');
+      } else {
+        alert('Failed to send email. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error sending email:', error);
+      alert('An error occurred while sending the email.');
+    }
+  });
+
   const getStorageData = key => JSON.parse(localStorage.getItem(key) ?? '{}');
 
   const setStorageData = (key, month, value) => {
