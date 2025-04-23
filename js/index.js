@@ -85,10 +85,8 @@ const onLoad = () => {
   
     // Email data
     const emailData = {
-      to: emailAddress, // Replace with the recipient's email
-      subject: 'Your Chart from Ducks 2 Dare',
-      body: 'Please find your chart attached.',
-      chartImage: chartImage,
+      emailAddress,
+      chartImage,
     };
   
     try {

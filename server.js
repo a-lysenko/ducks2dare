@@ -29,16 +29,18 @@ app.get('/health-check', (req, res) => {
 
 // Endpoint to send email
 app.post('/send-email', async (req, res) => {
-  const { to, subject, body, chartImage } = req.body;
+  const { emailAddress, chartImage } = req.body;
 
   console.log('send-email Request body:', req.body);
+  const subject = 'Your Chart from Ducks 2 Dare';
+  const emailBody = 'Please find your chart attached.';
 
   try {
     const sendResult = await transporter.sendMail({
       from: '"Ducks 2 Dare" <onboarding@resend.dev>', // Updated to use Resend test/dev email
-      to,
+      to: emailAddress,
       subject,
-      html: `<p>${body}</p>`,
+      html: `<p>${emailBody}</p>`,
       attachments: [
         {
           filename: 'chart.png', // Name of the file
