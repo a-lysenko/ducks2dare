@@ -1,24 +1,26 @@
 const express = require('express');
-const nodemailer = require('nodemailer');
 const bodyParser = require('body-parser');
+const nodemailer = require('nodemailer'); // Re-add nodemailer
 
 const app = express();
 app.use(bodyParser.json({ limit: '10mb' })); // Increase the limit to 10MB
 
-const clientURL = 'http://localhost:52330' // 'http://localhost:3000'; // Replace with your client URL
+const clientURL = 'http://localhost:52330' // Replace with your client URL
 
 const cors = require('cors');
 app.use(cors({ origin: clientURL }));
 
+const RESEND_API_KEY = 'YOUR-API-KEY'; // Replace with your Resend API key
+
 // Configure the SMTP transporter
 const transporter = nodemailer.createTransport({
-  host: 'smtp.example.com', // Replace with your SMTP server
+  host: 'smtp.resend.com', // Replace with your SMTP server
   port: 587,
   secure: false, // Use TLS
   auth: {
-    user: 'your-email@example.com', // Replace with your email
-    pass: 'your-email-password', // Replace with your email password
-  },
+    user: 'resend', // Replace with your email
+    pass: RESEND_API_KEY
+  }
 });
 
 app.get('/health-check', (req, res) => {
@@ -27,19 +29,26 @@ app.get('/health-check', (req, res) => {
 
 // Endpoint to send email
 app.post('/send-email', async (req, res) => {
-  // const { to, subject, body, chartImage } = req.body;
+  const { to, subject, body, chartImage } = req.body;
 
-  console.log('Request body:', req.body);
-
-  return res.status(200).send('Email sent successfully!');
+  console.log('send-email Request body:', req.body);
 
   try {
-    await transporter.sendMail({
-      from: '"Ducks 2 Dare" <your-email@example.com>', // Replace with your email
+    const sendResult = await transporter.sendMail({
+      from: '"Ducks 2 Dare" <onboarding@resend.dev>', // Updated to use Resend test/dev email
       to,
       subject,
-      html: `<p>${body}</p><img src="${chartImage}" alt="Chart Image" />`,
+      html: `<p>${body}</p>`,
+      attachments: [
+        {
+          filename: 'chart.png', // Name of the file
+          content: chartImage.split(',')[1], // Base64 content of the image
+          encoding: 'base64', // Specify the encoding
+        },
+      ],
     });
+
+    console.log('Email sent successfully:', sendResult);
 
     res.status(200).send('Email sent successfully!');
   } catch (error) {
